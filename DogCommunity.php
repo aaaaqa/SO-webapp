@@ -1,15 +1,57 @@
 <?php
 
 print('<style>
+@import url(\'https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap\');
+
+html {
+  scroll-behaviour: smooth;
+}
+
+body {
+  font-family: \'Poppins\', sans-serif;
+  line-height: 1.7px;
+  color: white;
+  background: #272626;
+}
+
+section {
+  padding: 10px 0;
+}
+.topbar {
+  background: #272626;
+  color: white;
+}
+.tables {
+  background: white;
+  color: black;
+  height:900px;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+.container_topbar {
+  width:90%;
+  margin: 0 auto;
+  height:40px;
+  margin-top:5px;
+}
+.container_credits {
+  width:90%;
+  height:60px;
+  line-height:30px;
+  text-align: center;
+  vertical-align:center;
+}
 
 titulo {
     text-align: center;
     text-transform: uppercase;
     color: #4CAF50;
-  }
+}
 
 #tabla-con-estilo {
-  font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
   width: 50%;
 }
@@ -17,6 +59,7 @@ titulo {
 #tabla-con-estilo td, #tabla-con-estilo th {
   border: 1px solid #ddd;
   padding: 8px;
+  color:black;
 }
 
 #tabla-con-estilo tr:nth-child(even){background-color: #f2f2f2;}
@@ -60,9 +103,18 @@ $resultado_user = $mysqli->query($user);
 $user_ = "select * from user";
 $resultado_user_ = $mysqli->query($user_);
 
-print("<header style='text-align:center; font-size:32px;'><strong>Comunidad para perros</strong></header>");
-print("<hr>");
+print('
+<section class="topbar" id="topbar">
+  <div class="container container_topbar">
+    <h1><b>Comunidad para perros</b></h1>
+  </div>
+</section>
+');
+//print("<header style='text-align:center; font-size:32px;'><strong>Comunidad para perros</strong></header>");
+//print("<hr>");
 
+print("<section class=\"tables\">");
+print("<div class=\"container\">");
 print("<h3>Perros</h3>");
 
 print("<table id='tabla-con-estilo'>");
@@ -106,7 +158,17 @@ while ($rows = $resultado_user_->fetch_assoc()) {
     print("</tr>");
 }
 print("</table>");
-
+print("</div>");
+print("</section>");
+print('
+<section>
+<div class="container container_credits" id="credits">
+  <b>Universidad Peruana de Ciencias Aplicadas - Sistemas Operativos</b>
+  <br>
+  Flores, Galindo, Goyas
+</div>
+</section>
+');
 
 $resultado_dog->free();
 $resultado_user->free();
