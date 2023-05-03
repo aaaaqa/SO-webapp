@@ -73,28 +73,39 @@ titulo {
   background-color: #04AA6D;
   color: white;
 
-  
 </style>');
+
 
 $hostname = 'database-proyecto.cibjsg4po05d.us-east-1.rds.amazonaws.com';
 $user = 'admin';
 $password = 'NZ81kRLn0ObavBqieMiL';
-$database = 'dog_community'; 
+$database = 'dog_community';
 $port = 3306;
 $mysqli = new mysqli($hostname, $user, $password, $database, $port);
 
 if ($mysqli->connect_error) {
     die('Connect Error (' . $mysqli->connect_errno . ') '
-            . $mysqli->connect_error);
+        . $mysqli->connect_error);
 }
 
-// Consultar datos con MySQLi
-$dog = "select * from dog";
-$resultado_dog = $mysqli->query($dog);
-$user = "select x.name from user x join dog y where x.id = y.user_id";
-$resultado_user = $mysqli->query($user);
-$user_ = "select * from user";
-$resultado_user_ = $mysqli->query($user_);
+// Añadir un perro
+if (isset($_POST['submit_dog'])) {
+    $nombre_perro = $_POST['name'];
+    $raza = $_POST['breed'];
+    $edad = $_POST['age'];
+    $intereses = $_POST['interests'];
+    $id_persona = $_POST['user_id'];
+
+    $query_perro = "INSERT INTO dog (name, breed, age, interests, user_id) VALUES ('$nombre_perro', '$raza', '$edad', '$intereses', '$id_persona')";
+
+    if ($mysqli->query($query_perro) === TRUE) {
+        echo "<p>Perro añadido correctamente. <a href='AddDog.php?user_id=$id_persona'>Añadir otro perro</a></p>";
+    } else {
+        echo "Error al añadir el perro: " . $mysqli->error;
+    }
+}
+
+$last_user_id = $_GET['user_id'];
 
 print('
 <section class="topbar" id="topbar">
@@ -104,12 +115,8 @@ print('
 </section>
 ');
 
-//print("<header style='text-align:center; font-size:32px;'><strong>Comunidad para perros</strong></header>");
-//print("<hr>");
-
 print("<section class=\"tables\">");
 print("<div class=\"container\">");
-
 
 // Buttonbar
 print('
@@ -122,65 +129,21 @@ print('
 ');
 
 
-
-print("<h3>Perros</h3>");
-
-print("<table id='tabla-con-estilo'>");
-// Cabecera de Tabla
-print("<tr>");
-print("<th><b>Nombre</b></td>");
-print("<th><b>Raza</b></td>");
-print("<th><b>Edad</b></td>");
-print("<th><b>Intereses</b></td>");
-print("<th><b>Usuario</b></td>");
-print("</tr>");
-
-// Registros
-while ($rows = $resultado_dog->fetch_assoc()) {
-    $user_name = $resultado_user->fetch_assoc();
-    print("<tr>");
-    print("<td>" . $rows["name"] . "</td>");
-    print("<td>" . $rows["breed"] . "</td>");
-    print("<td>" . $rows["age"] . "</td>");
-    print("<td>" . $rows["interests"] . "</td>");
-    print("<td>" . $user_name["name"] . "</td>");
-    print("</tr>");
-}
-print("</table>");
-
-print("<h3>Usuarios</h3>");
-
-print("<table id='tabla-con-estilo'>");
-// Cabecera de Tabla
-print("<tr>");
-print("<th><b>Nombre</b></td>");
-print("<th><b>Apellido</b></td>");
-print("<th><b>Correo Electronico</b></td>");
-print("</tr>");
-
-while ($rows = $resultado_user_->fetch_assoc()) {
-    print("<tr>");
-    print("<td>" . $rows["name"] . "</td>");
-    print("<td>" . $rows["lastname"] . "</td>");
-    print("<td>" . $rows["email"] . "</td>");
-    print("</tr>");
-}
-print("</table>");
-print("</div>");
-print("</section>");
+print("<h3>Añadir Perro</h3>");
 print('
-<section>
-<div class="container container_credits" id="credits">
-  <b>Universidad Peruana de Ciencias Aplicadas - Sistemas Operativos</b>
-  <br>
-  Flores, Galindo, Goyas
-</div>
-</section>
-');
-
-$resultado_dog->free();
-$resultado_user->free();
-$resultado_user_->free();
+<form method="POST" action="">
+    <input type="hidden" name="user_id" value="' . $last_user_id . '">
+    <label for="name">Nombre del Perro:</label>
+    <input type="text" name="name" required>
+    <label for="breed">Raza:</label>
+    <input type="text" name="breed" required>
+    <label for="age">Edad:</label>
+    <input type="text" name="age" required>
+    <label for="interests">Intereses:</label>
+    <input type="text" name="interests" required>
+    <input type="submit" name="submit_dog" value="Añadir Perro">
+    
+</form>');
 
 $mysqli->close();
 ?>

@@ -73,8 +73,8 @@ titulo {
   background-color: #04AA6D;
   color: white;
 
-  
 </style>');
+
 
 $hostname = 'database-proyecto.cibjsg4po05d.us-east-1.rds.amazonaws.com';
 $user = 'admin';
@@ -88,13 +88,38 @@ if ($mysqli->connect_error) {
             . $mysqli->connect_error);
 }
 
-// Consultar datos con MySQLi
-$dog = "select * from dog";
-$resultado_dog = $mysqli->query($dog);
-$user = "select x.name from user x join dog y where x.id = y.user_id";
-$resultado_user = $mysqli->query($user);
-$user_ = "select * from user";
-$resultado_user_ = $mysqli->query($user_);
+// Añadir una persona
+error_reporting(E_ALL ^ E_WARNING ^ E_DEPRECATED);
+if (isset($_POST['submit_person'])) {
+    $nombre = $_POST['name'];
+    $apellido = $_POST['lastname'];
+    $correo = $_POST['email'];
+    $password = $_POST['password_hash'];
+
+    $salt = generateSalt();
+    $hashed_password = crypt($password, $salt);
+
+    $query = "INSERT INTO user (name, lastname, email, password_hash) VALUES ('$nombre', '$apellido', '$correo', '$hashed_password')";
+
+    if ($mysqli->query($query) === TRUE) {
+        $last_user_id = $mysqli->insert_id;
+        echo "<p>Persona añadida correctamente.<br></p>";
+        echo "<p><a href='AddDog.php?user_id=$last_user_id'>Añadir un perro a este usuario</a></p>";
+    } else {
+        echo "Error al añadir la persona: " . $mysqli->error . "<br>";
+    }
+}
+
+
+function generateSalt() {
+    $length = 22;
+    $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $salt = '';
+    for ($i = 0; $i < $length; $i++) {
+        $salt .= $characters[rand(0, strlen($characters) - 1)];
+    }
+    return $salt;
+}
 
 print('
 <section class="topbar" id="topbar">
@@ -104,8 +129,6 @@ print('
 </section>
 ');
 
-//print("<header style='text-align:center; font-size:32px;'><strong>Comunidad para perros</strong></header>");
-//print("<hr>");
 
 print("<section class=\"tables\">");
 print("<div class=\"container\">");
@@ -121,66 +144,20 @@ print('
 </section>
 ');
 
-
-
-print("<h3>Perros</h3>");
-
-print("<table id='tabla-con-estilo'>");
-// Cabecera de Tabla
-print("<tr>");
-print("<th><b>Nombre</b></td>");
-print("<th><b>Raza</b></td>");
-print("<th><b>Edad</b></td>");
-print("<th><b>Intereses</b></td>");
-print("<th><b>Usuario</b></td>");
-print("</tr>");
-
-// Registros
-while ($rows = $resultado_dog->fetch_assoc()) {
-    $user_name = $resultado_user->fetch_assoc();
-    print("<tr>");
-    print("<td>" . $rows["name"] . "</td>");
-    print("<td>" . $rows["breed"] . "</td>");
-    print("<td>" . $rows["age"] . "</td>");
-    print("<td>" . $rows["interests"] . "</td>");
-    print("<td>" . $user_name["name"] . "</td>");
-    print("</tr>");
-}
-print("</table>");
-
-print("<h3>Usuarios</h3>");
-
-print("<table id='tabla-con-estilo'>");
-// Cabecera de Tabla
-print("<tr>");
-print("<th><b>Nombre</b></td>");
-print("<th><b>Apellido</b></td>");
-print("<th><b>Correo Electronico</b></td>");
-print("</tr>");
-
-while ($rows = $resultado_user_->fetch_assoc()) {
-    print("<tr>");
-    print("<td>" . $rows["name"] . "</td>");
-    print("<td>" . $rows["lastname"] . "</td>");
-    print("<td>" . $rows["email"] . "</td>");
-    print("</tr>");
-}
-print("</table>");
-print("</div>");
-print("</section>");
+print("<h3>Añadir Persona</h3>");
 print('
-<section>
-<div class="container container_credits" id="credits">
-  <b>Universidad Peruana de Ciencias Aplicadas - Sistemas Operativos</b>
-  <br>
-  Flores, Galindo, Goyas
-</div>
-</section>
-');
+<form method="POST" action="">
+    <label for="name">Nombre:</label>
+    <input type="text" name="name" required>
+    <label for="lastname">Apellido:</label>
+    <input type="text" name="lastname" required>
+    <label for="email">Correo electrónico:</label>
+    <input type="text" name="email" required>
+    <label for="password">Contraseña:</label>
+    <input type="password" name="password" required>
+    <input type="submit" name="submit_person" value="Añadir Persona">
+</form>');
 
-$resultado_dog->free();
-$resultado_user->free();
-$resultado_user_->free();
 
 $mysqli->close();
 ?>
